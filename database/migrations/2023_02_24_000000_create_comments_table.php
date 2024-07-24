@@ -12,12 +12,18 @@ return new class extends Migration {
     {
         Schema::create('comments', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained()->onDelete('cascade');
+            //$table->foreignId('user_id')->constrained()->onDelete('cascade');
+            $table->string('name');
+            $table->unsignedInteger('user_id')->index()->nullable();
             $table->foreignId('parent_id')->nullable()->constrained('comments')->onDelete('cascade');
             $table->text('body');
+            $table->integer('rating');
             $table->morphs('commentable');
+            $table->tinyInteger('is_active');
             $table->softDeletes();
             $table->timestamps();
+
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
         });
     }
 
