@@ -14,6 +14,7 @@ return new class extends Migration {
             $table->id();
             //$table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->string('name');
+            $table->string('email')->nullable()->after('name');
             $table->unsignedInteger('user_id')->index()->nullable();
             $table->foreignId('parent_id')->nullable()->constrained('comments')->onDelete('cascade');
             $table->text('body');
