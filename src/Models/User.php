@@ -6,8 +6,10 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as BaseUser;
 use Usamamuneerchaudhary\Commentify\Database\Factories\UserFactory;
 use Usamamuneerchaudhary\Commentify\Traits\HasUserAvatar;
+use App\Models\User as UserModel;
 
-class User extends BaseUser
+//class User extends BaseUser
+class User extends UserModel
 {
     use HasUserAvatar, HasFactory;
 

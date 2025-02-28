@@ -41,8 +41,6 @@ class Comment extends Component
         'editState.body' => 'Reply'
     ];
 
-
-
     /**
      * @param $isEditing
      * @return void
@@ -63,13 +61,15 @@ class Comment extends Component
      */
     public function editComment(): void
     {
-        $this->authorize('update', $this->comment);
+        $this->authorizeForUser(app('user'),'update', $this->comment);
+        //$this->authorize('update', $this->comment);
         $this->validate([
             'editState.body' => 'required|min:2'
         ]);
         $this->comment->update($this->editState);
         $this->isEditing = false;
         $this->showOptions = false;
+        $this->notify(__t("Комментарий успешно обновлен"), __t('Спасибо'), 'success');
     }
 
     /**
@@ -79,10 +79,12 @@ class Comment extends Component
     #[On('refresh')]
     public function deleteComment(): void
     {
-        $this->authorize('destroy', $this->comment);
+        $this->authorizeForUser(app('user'),'destroy', $this->comment);
+        //$this->authorize('destroy', $this->comment);
         $this->comment->delete();
         $this->showOptions = false;
         $this->dispatch('refresh');
+        $this->notify(__t("Комментарий успешно удален"), __t('Спасибо'), 'success');
     }
 
     /**
@@ -104,10 +106,12 @@ class Comment extends Component
             return;
         }
         $this->validate([
-            'replyState.body' => 'required'
+            'replyState.body' => 'required',
+            'replyState.email' => 'required',
+            'replyState.name' => 'required',
         ]);
         $reply = $this->comment->children()->make($this->replyState);
-        $reply->user()->associate(auth()->user());
+        $reply->user()->associate(app('user'));
         $reply->commentable()->associate($this->comment->commentable);
         $reply->save();
 
@@ -117,6 +121,7 @@ class Comment extends Component
         $this->isReplying = false;
         $this->showOptions = false;
         $this->dispatch('refresh')->self();
+        $this->notify(__t("Комментарий успешно добавлен"), __t('Спасибо'), 'success');
     }
 
     /**

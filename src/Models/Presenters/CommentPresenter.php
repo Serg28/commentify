@@ -48,7 +48,7 @@ class CommentPresenter
         $replacements = [];
 
         foreach ($usernames as $username) {
-            $user = User::where('name', $username)->first();
+            $user = User::where('first_name', $username)->first();
 
             if ($user) {
                 $userRoutePrefix = config('commentify.users_route_prefix', 'users');

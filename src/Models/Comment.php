@@ -2,6 +2,7 @@
 
 namespace Usamamuneerchaudhary\Commentify\Models;
 
+use App\Models\OrderProducts;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -26,7 +27,7 @@ class Comment extends Model
     /**
      * @var string[]
      */
-    protected $fillable = ['body'];
+    protected $fillable = ['body', 'rating', 'name', 'email'];
 
     protected $withCount = [
         'likes',
@@ -78,5 +79,34 @@ class Comment extends Model
     protected static function newFactory(): CommentFactory
     {
         return CommentFactory::new();
+    }
+
+    public function scopeActive($query)
+    {
+        return $query->where('is_active', 1);
+    }
+
+    /**
+     * Проверяет, был ли товар, связанный с комментарием, куплен пользователем.
+     *
+     * @return bool Возвращает true, если товар куплен пользователем, иначе false.
+     */
+    public function isProductPurchasedByUser(): bool
+    {
+        // Проверяем, связан ли комментарий с товаром
+        if ($this->commentable_type === 'product') {
+            // Получаем ID товара, к которому относится комментарий
+            $productId = $this->commentable_id;
+
+            // Проверяем, есть ли у комментария пользователь
+            if ($this->user_id) {
+                // Проверяем, куплен ли товар пользователем хотя бы в одном заказе
+                return OrderProducts::where('user_id', $this->user_id)
+                    ->where('product_id', $productId)
+                    ->exists();
+            }
+        }
+
+        return false; // Если комментарий не связан с товаром или пользователь пустой
     }
 }
